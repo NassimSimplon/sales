@@ -179,8 +179,7 @@ export function AnalyticsView() {
               })}
           </div>
         </Card>
-      </div>
-        </Card>
+
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Detailed Monthly Performance</h3>
         <div className="overflow-x-auto">
