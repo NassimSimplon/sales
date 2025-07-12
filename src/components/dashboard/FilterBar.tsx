@@ -1,13 +1,15 @@
 import React from 'react';
-import { useDashboard } from '../../contexts/DashboardContext';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { selectGlobalFilters } from '../../store/selectors';
+import { updateGlobalFilters } from '../../store/slices/filtersSlice';
 import { Search, Filter } from 'lucide-react';
 
 export function FilterBar() {
-  const { state, dispatch } = useDashboard();
-  const { filters } = state;
+  const dispatch = useAppDispatch();
+  const filters = useAppSelector(selectGlobalFilters);
 
   const handleFilterChange = (key: string, value: string) => {
-    dispatch({ type: 'UPDATE_FILTERS', payload: { [key]: value } });
+    dispatch(updateGlobalFilters({ [key]: value }));
   };
 
   return (

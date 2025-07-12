@@ -1,12 +1,31 @@
 import React from 'react';
-import { useDashboard } from '../../contexts/DashboardContext';
+import { useGetDashboardDataQuery, useGetMonthlyStatsQuery } from '../../store/api/apiSlice';
 import { Card } from '../common/Card';
 import { LineChart } from '../charts/LineChart';
 import { BarChart } from '../charts/BarChart';
 
 export function AnalyticsView() {
-  const { state } = useDashboard();
-  const { data } = state;
+  const { data, isLoading, error } = useGetDashboardDataQuery();
+  const { data: monthlyStats } = useGetMonthlyStatsQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">Error loading analytics data</p>
+      </div>
+    );
+  }
 
   const monthlyData = data.monthlyStats.map(stat => ({
     label: stat.month,

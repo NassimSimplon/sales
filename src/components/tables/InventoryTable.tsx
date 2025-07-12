@@ -1,17 +1,43 @@
 import React from 'react';
-import { useFilteredData } from '../../hooks/useFilteredData';
+import { useAppSelector } from '../../store/hooks';
+import { selectShoeFilters } from '../../store/selectors';
+import { useGetShoesQuery } from '../../store/api/apiSlice';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { Package, DollarSign, TrendingUp } from 'lucide-react';
 
 export function InventoryTable() {
-  const { shoes } = useFilteredData();
+  const filters = useAppSelector(selectShoeFilters);
+  const { data: shoes = [], isLoading, error } = useGetShoesQuery(filters);
 
   const getStockStatus = (stock: number) => {
     if (stock > 30) return { variant: 'success' as const, label: 'In Stock' };
     if (stock > 10) return { variant: 'warning' as const, label: 'Low Stock' };
     return { variant: 'error' as const, label: 'Critical' };
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading inventory...</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading inventory</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card>

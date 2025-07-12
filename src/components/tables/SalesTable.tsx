@@ -1,24 +1,48 @@
 import React from 'react';
-import { useFilteredData } from '../../hooks/useFilteredData';
-import { useDashboard } from '../../contexts/DashboardContext';
+import { useAppSelector } from '../../store/hooks';
+import { selectSaleFilters } from '../../store/selectors';
+import { useGetSalesQuery, useGetDashboardDataQuery } from '../../store/api/apiSlice';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { DollarSign, Calendar, Package } from 'lucide-react';
 
 export function SalesTable() {
-  const { sales } = useFilteredData();
-  const { state } = useDashboard();
-  const { data } = state;
+  const filters = useAppSelector(selectSaleFilters);
+  const { data: sales = [], isLoading: salesLoading, error: salesError } = useGetSalesQuery(filters);
+  const { data } = useGetDashboardDataQuery();
 
   const getCustomerName = (customerId: string) => {
-    const customer = data.customers.find(c => c.id === customerId);
+    const customer = data?.customers.find(c => c.id === customerId);
     return customer?.name || 'Unknown Customer';
   };
 
   const getShoeName = (shoeId: string) => {
-    const shoe = data.shoes.find(s => s.id === shoeId);
+    const shoe = data?.shoes.find(s => s.id === shoeId);
     return shoe?.name || 'Unknown Product';
   };
+
+  if (salesLoading) {
+    return (
+      <Card>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading sales...</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (salesError) {
+    return (
+      <Card>
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading sales</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card>

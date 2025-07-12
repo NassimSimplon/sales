@@ -1,11 +1,37 @@
 import React from 'react';
-import { useFilteredData } from '../../hooks/useFilteredData';
+import { useAppSelector } from '../../store/hooks';
+import { selectCustomerFilters } from '../../store/selectors';
+import { useGetCustomersQuery } from '../../store/api/apiSlice';
 import { Card } from '../common/Card';
 import { Badge } from '../common/Badge';
 import { Mail, Phone, MapPin, DollarSign } from 'lucide-react';
 
 export function CustomersTable() {
-  const { customers } = useFilteredData();
+  const filters = useAppSelector(selectCustomerFilters);
+  const { data: customers = [], isLoading, error } = useGetCustomersQuery(filters);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading customers...</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading customers</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card>

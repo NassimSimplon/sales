@@ -1,37 +1,43 @@
-import React, { useState } from "react";
-import { Provider } from 'react-redux';
-import { store } from './store';
-import { DashboardApp } from './components/DashboardApp';
+import React, { useEffect } from "react";
+import { AnalyticsView } from "./analytics/AnalyticsView";
+import { LoadingSpinner } from "./common/LoadingSpinner";
+import { FilterBar } from "./dashboard/FilterBar";
+import { Overview } from "./dashboard/Overview";
+import { Sidebar } from "./navigation/Sidebar";
+import { CustomersTable } from "./tables/CustomersTable";
+import { InventoryTable } from "./tables/InventoryTable";
+import { SalesTable } from "./tables/SalesTable";
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { selectActiveTab, selectDashboardLoading } from '../store/selectors';
+import { useGetDashboardDataQuery } from '../store/api/apiSlice';
+import { setActiveTab } from '../store/slices/uiSlice';
 
-function App() {
-  return (
-    <Provider store={store}>
-      <DashboardApp />
-    </Provider>
-  );
-}
+export function DashboardApp() {
+  const dispatch = useAppDispatch();
+  const activeTab = useAppSelector(selectActiveTab);
+  const { isLoading, error } = useGetDashboardDataQuery();
 
-export default App;
-import { AnalyticsView } from "./components/analytics/AnalyticsView";
-import { LoadingSpinner } from "./components/common/LoadingSpinner";
-import { FilterBar } from "./components/dashboard/FilterBar";
-import { Overview } from "./components/dashboard/Overview";
-import { Sidebar } from "./components/navigation/Sidebar";
-import { CustomersTable } from "./components/tables/CustomersTable";
-import { InventoryTable } from "./components/tables/InventoryTable";
-import { SalesTable } from "./components/tables/SalesTable";
-import { DashboardProvider, useDashboard } from "./contexts/DashboardContext";
+  const handleTabChange = (tab: string) => {
+    dispatch(setActiveTab(tab));
+  };
 
-function DashboardContent() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const { state } = useDashboard();
-
-  if (state.loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-xl mb-4">Error loading dashboard</div>
+          <p className="text-gray-600">Please try refreshing the page</p>
         </div>
       </div>
     );
@@ -56,7 +62,7 @@ function DashboardContent() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
       
       <div className="flex-1 flex flex-col">
         <header className="bg-white shadow-sm border-b border-gray-200 p-6">
@@ -87,13 +93,3 @@ function DashboardContent() {
     </div>
   );
 }
-
-function App() {
-  return (
-    <DashboardProvider>
-      <DashboardContent />
-    </DashboardProvider>
-  );
-}
-
-export default App;
