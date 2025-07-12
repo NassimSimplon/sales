@@ -1,4 +1,5 @@
 import React from 'react';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { useAppSelector } from '../../store/hooks';
 import { selectDashboardMetrics } from '../../store/selectors';
 import { useGetDashboardDataQuery, useGetMonthlyStatsQuery } from '../../store/api/apiSlice';

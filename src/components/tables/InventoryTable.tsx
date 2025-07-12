@@ -1,14 +1,28 @@
 import React from 'react';
+import { useState } from 'react';
 import { useAppSelector } from '../../store/hooks';
-import { selectShoeFilters } from '../../store/selectors';
-import { useGetShoesQuery } from '../../store/api/apiSlice';
+import { selectShoeFilters, selectGlobalFilters } from '../../store/selectors';
+import { useGetShoesQuery, useDeleteShoeMutation } from '../../store/api/apiSlice';
 import { Card } from '../common/Card';
+import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { Package, DollarSign, TrendingUp } from 'lucide-react';
+import { Package, DollarSign, TrendingUp, Edit, Trash2, Plus } from 'lucide-react';
+import { ShoeModal } from '../modals/ShoeModal';
 
 export function InventoryTable() {
   const filters = useAppSelector(selectShoeFilters);
-  const { data: shoes = [], isLoading, error } = useGetShoesQuery(filters);
+  const globalFilters = useAppSelector(selectGlobalFilters);
+  const [selectedShoe, setSelectedShoe] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  
+  const { data: shoes = [], isLoading, error } = useGetShoesQuery({
+    ...filters,
+    searchTerm: globalFilters.searchTerm || filters.searchTerm,
+    category: globalFilters.category !== 'all' ? globalFilters.category : filters.category,
+  });
+  
+  const [deleteShoe, { isLoading: isDeleting }] = useDeleteShoeMutation();
 
   const getStockStatus = (stock: number) => {
     if (stock > 30) return { variant: 'success' as const, label: 'In Stock' };
@@ -16,6 +30,27 @@ export function InventoryTable() {
     return { variant: 'error' as const, label: 'Critical' };
   };
 
+  const handleEdit = (shoe: any) => {
+    setSelectedShoe(shoe);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedShoe(null);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (shoeId: string) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteShoe(shoeId).unwrap();
+      } catch (error) {
+        console.error('Failed to delete shoe:', error);
+      }
+    }
+  };
   if (isLoading) {
     return (
       <Card>
@@ -43,7 +78,13 @@ export function InventoryTable() {
     <Card>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Inventory</h2>
-        <span className="text-sm text-gray-500">{shoes.length} products</span>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-500">{shoes.length} products</span>
+          <Button onClick={handleCreate} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -57,6 +98,7 @@ export function InventoryTable() {
               <th className="text-left py-3 px-4 font-medium text-gray-600">Profit Margin</th>
               <th className="text-left py-3 px-4 font-medium text-gray-600">Stock</th>
               <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+              <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -114,11 +156,37 @@ export function InventoryTable() {
                     </Badge>
                   </td>
                 </tr>
+                <td className="py-4 px-4">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(shoe)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(shoe.id)}
+                      loading={isDeleting}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </td>
               );
             })}
           </tbody>
         </table>
       </div>
+      
+      <ShoeModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        shoe={selectedShoe}
+        mode={modalMode}
+      />
     </Card>
   );
 }
