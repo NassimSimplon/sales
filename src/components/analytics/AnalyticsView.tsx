@@ -150,6 +150,7 @@ export function AnalyticsView() {
               );
             })}
           </div>
+        </Card>
         <Card>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Customers</h3>
           <div className="space-y-3">
@@ -179,6 +180,7 @@ export function AnalyticsView() {
               })}
           </div>
         </Card>
+      </div>
 
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Detailed Monthly Performance</h3>
