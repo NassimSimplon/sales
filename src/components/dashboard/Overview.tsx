@@ -1,27 +1,16 @@
-import React from 'react';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { useAppSelector } from '../../store/hooks';
-import { selectDashboardMetrics } from '../../store/selectors';
-import { useGetDashboardDataQuery, useGetMonthlyStatsQuery } from '../../store/api/apiSlice';
-import { MetricsCard } from './MetricsCard';
-import { LineChart } from '../charts/LineChart';
-import { BarChart } from '../charts/BarChart';
-import { Card } from '../common/Card';
-import { DollarSign, ShoppingBag, Users, TrendingUp } from 'lucide-react';
+import React from "react";
+import { DollarSign, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import { useDashboard } from "../../contexts/DashboardContext";
+import { useDashboardMetrics } from "../../hooks/useDashboardMetrics";
+import { BarChart } from "../charts/BarChart";
+import { LineChart } from "../charts/LineChart";
+import { Card } from "../common/Card";
+import { MetricsCard } from "./MetricsCard";
 
 export function Overview() {
-  const metrics = useAppSelector(selectDashboardMetrics);
-  const { data } = useGetDashboardDataQuery();
-  const { data: monthlyStats } = useGetMonthlyStatsQuery();
-
-  if (!data || !metrics) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
+  const metrics = useDashboardMetrics();
+  const { state } = useDashboard();
+  const { data } = state;
   const monthlyRevenueData = data.monthlyStats.slice(-6).map(stat => ({
     label: stat.month.split(' ')[0],
     value: stat.revenue

@@ -43,8 +43,8 @@ export interface MonthlyStats {
 
 export interface DashboardData {
   customers: Customer[];
-  shoes: Shoe[];
-  sales: Sale[];
+  shoes: any[];
+  sales: any[];
   monthlyStats: MonthlyStats[];
 }
 

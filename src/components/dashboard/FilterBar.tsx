@@ -1,27 +1,15 @@
 import React from 'react';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { selectGlobalFilters, selectActiveTab } from '../../store/selectors';
-import { updateGlobalFilters, resetGlobalFilters } from '../../store/slices/filtersSlice';
+import { useDashboard } from '../../contexts/DashboardContext';
 import { Search, Filter } from 'lucide-react';
-import { Button } from '../common/Button';
 
 export function FilterBar() {
-  const dispatch = useAppDispatch();
-  const filters = useAppSelector(selectGlobalFilters);
-  const activeTab = useAppSelector(selectActiveTab);
+  const { state, dispatch } = useDashboard();
+  const { filters } = state;
 
   const handleFilterChange = (key: string, value: string) => {
-    dispatch(updateGlobalFilters({ [key]: value }));
+    dispatch({ type: 'UPDATE_FILTERS', payload: { [key]: value } });
   };
 
-  const handleReset = () => {
-    dispatch(resetGlobalFilters());
-  };
-
-  const hasActiveFilters = filters.searchTerm || 
-    filters.dateRange !== 'all' || 
-    filters.category !== 'all' || 
-    filters.status !== 'all';
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-6">
       <div className="flex flex-col lg:flex-row gap-4">
@@ -41,34 +29,30 @@ export function FilterBar() {
         <div className="flex gap-3">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />
-            {(activeTab === 'sales' || activeTab === 'analytics' || activeTab === 'overview') && (
-              <select
-                value={filters.dateRange}
-                onChange={(e) => handleFilterChange('dateRange', e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Time</option>
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="quarter">Last Quarter</option>
-                <option value="year">Last Year</option>
-              </select>
-            )}
-          </div>
-
-          {(activeTab === 'inventory' || activeTab === 'overview') && (
             <select
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
+              value={filters.dateRange}
+              onChange={(e) => handleFilterChange('dateRange', e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Categories</option>
-              <option value="running">Running</option>
-              <option value="casual">Casual</option>
-              <option value="formal">Formal</option>
-              <option value="sports">Sports</option>
+              <option value="all">All Time</option>
+              <option value="week">Last Week</option>
+              <option value="month">Last Month</option>
+              <option value="quarter">Last Quarter</option>
+              <option value="year">Last Year</option>
             </select>
-          )}
+          </div>
+
+          <select
+            value={filters.category}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All Categories</option>
+            <option value="running">Running</option>
+            <option value="casual">Casual</option>
+            <option value="formal">Formal</option>
+            <option value="sports">Sports</option>
+          </select>
 
           <select
             value={filters.status}
@@ -76,30 +60,11 @@ export function FilterBar() {
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">All Status</option>
-            {activeTab === 'customers' && (
-              <>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </>
-            )}
-            {activeTab === 'sales' && (
-              <>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
-              </>
-            )}
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
           </select>
-
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-            >
-              Clear Filters
-            </Button>
-          )}
         </div>
       </div>
     </div>
