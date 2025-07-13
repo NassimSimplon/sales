@@ -41,20 +41,53 @@ export interface MonthlyStats {
   customers: number;
 }
 
+export interface FilterState {
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  categories: string[];
+  brands: string[];
+  customerStatus: string[];
+  locations: string[];
+  searchTerm: string;
+  quickFilters: {
+    highValueCustomers: boolean;
+    lowStock: boolean;
+    recentSales: boolean;
+  };
+}
+
+export interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor?: string | string[];
+    borderColor?: string;
+    borderWidth?: number;
+    fill?: boolean;
+  }[];
+}
+
 export interface DashboardData {
   customers: Customer[];
-  shoes: any[];
-  sales: any[];
+  shoes: Shoe[];
+  sales: Sale[];
   monthlyStats: MonthlyStats[];
 }
 
-export interface DashboardMetrics {
+export interface KPIData {
   totalRevenue: number;
   totalProfit: number;
-  totalSales: number;
   totalCustomers: number;
-  averageOrderValue: number;
+  activeCustomers: number;
+  totalProducts: number;
+  lowStockProducts: number;
+  totalSales: number;
+  avgOrderValue: number;
   profitMargin: number;
-  topSellingShoe: string;
-  monthlyGrowth: number;
+  customerRetention: number;
 }
+
+export type NavigationPage = 'statistics' | 'sales' | 'customers' | 'products';</parameter>
